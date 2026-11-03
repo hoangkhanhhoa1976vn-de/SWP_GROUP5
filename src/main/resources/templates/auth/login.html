@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - Hệ thống CTMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-sky-950 to-slate-900 min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-md w-full">
+        <!-- Logo & Title -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-sky-500 shadow-xl shadow-sky-500/20 mb-4">
+                <i class="fa-solid fa-anchor text-white text-3xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-white tracking-tight">CTMS PORT SYSTEM</h1>
+            <p class="text-sm text-sky-300 mt-1">Hệ thống Quản lý Khai thác Cảng Container</p>
+        </div>
+
+        <!-- Login Card -->
+        <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20">
+            <div th:if="${errorMessage}" class="mb-4 p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium flex items-center gap-2">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span th:text="${errorMessage}">Sai thông tin đăng nhập!</span>
+            </div>
+            <div th:if="${logoutMessage}" class="mb-4 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium flex items-center gap-2">
+                <i class="fa-solid fa-circle-check"></i>
+                <span th:text="${logoutMessage}">Đã đăng xuất!</span>
+            </div>
+
+
+            <form th:action="@{/login}" method="post" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Tài khoản (Username hoặc Số điện thoại)</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                            <i class="fa-solid fa-user"></i>
+                        </span>
+                        <input type="text" name="username" id="usernameField" required autocomplete="username" placeholder="Nhập tên tài khoản hoặc số điện thoại"
+                               class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Mật khẩu</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" name="password" id="passwordField" required autocomplete="current-password"
+                               class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none transition">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-sky-600 hover:bg-sky-700 text-white font-semibold rounded-xl text-sm shadow-lg shadow-sky-600/30 transition duration-150">
+                    Đăng nhập Hệ Thống
+                </button>
+            </form>
+
+            <!-- Thông báo tài khoản tài xế do Cảng cấp -->
+            <div class="mt-4 p-3 rounded-xl bg-purple-50/80 border border-purple-200 text-purple-900 text-xs flex items-start gap-2.5">
+                <i class="fa-solid fa-id-card text-purple-600 text-sm mt-0.5 shrink-0"></i>
+                <div>
+                    <span class="font-bold">Lưu ý cho Tài xế xe tải:</span>
+                    <p class="text-[11px] text-purple-700 mt-0.5">Tài khoản và mật khẩu do Ban Quản lý Cảng cấp kèm theo Biển số xe tải. Bạn có thể đăng nhập bằng Tên tài khoản hoặc Số điện thoại đã được cấp.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

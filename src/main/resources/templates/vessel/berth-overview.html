@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main :: mainLayout(~{::#main-content})}">
+<head></head>
+<body>
+        <div id="main-content" class="space-y-6" x-data="{ assignModal: false, selectedBerthId: null }">
+
+            <!-- Page Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
+                        <i class="fa-solid fa-ship text-blue-600"></i> Điều Độ Cầu Bến & Tàu (Berth & Vessel)
+                    </h1>
+                    <p class="text-sm text-slate-500 mt-1">
+                        Quản lý trạng thái cầu cảng, phân bổ tàu cập bến (Assign Vessel to Berth) và lịch làm hàng
+                    </p>
+                </div>
+            </div>
+
+            <!-- BERTHS VISUAL CARDS -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div th:each="berth : ${berths}" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 font-bold flex items-center justify-center text-base">
+                                    <i class="fa-solid fa-anchor"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-base text-slate-800" th:text="${berth.name}">Cầu bến số 1</h3>
+                                    <span class="text-xs font-mono font-bold text-blue-600" th:text="${berth.berthCode}">B-01</span>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+                                  th:classappend="${berth.status.name() == 'AVAILABLE' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}"
+                                  th:text="${berth.status.displayName}">
+                                Sẵn sàng
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 text-xs mb-4">
+                            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                <span class="text-slate-400 block text-[11px]">Chiều dài cầu cảng:</span>
+                                <span class="font-bold text-slate-700" th:text="${berth.lengthMeters} + ' mét'">380 mét</span>
+                            </div>
+                            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                <span class="text-slate-400 block text-[11px]">Mớn nước tối đa:</span>
+                                <span class="font-bold text-slate-700" th:text="${berth.maxDraftMeters} + ' mét'">14.5 mét</span>
+                            </div>
+                        </div>
+
+                        <!-- Current Berthed Vessel -->
+                        <div th:if="${berth.currentVessel != null}" class="p-4 rounded-xl bg-blue-50/80 border border-blue-200">
+                            <div class="text-xs font-bold uppercase tracking-wider text-blue-800 flex items-center gap-1.5 mb-2">
+                                <i class="fa-solid fa-ferry text-blue-600"></i> Tàu đang neo đậu:
+                            </div>
+                            <div class="text-sm font-bold text-slate-900" th:text="${berth.currentVessel.name}">MSC OSCAR</div>
+                            <div class="text-xs text-slate-600 mt-1">
+                                Hãng tàu: <b th:text="${berth.currentVessel.shippingLine.name}">MSC</b> • Sức chở: <b th:text="${berth.currentVessel.capacityTeu}">19,224</b> TEU
+                            </div>
+                            <div class="text-[11px] text-slate-500 font-mono mt-1">
+                                Cập bến: <span th:text="${#temporals.format(berth.currentVessel.eta, 'dd/MM/yyyy HH:mm')}">--</span>
+                            </div>
+                        </div>
+
+                        <div th:if="${berth.currentVessel == null}" class="p-6 rounded-xl bg-slate-50 border border-slate-200/60 text-center text-slate-400 text-xs">
+                            <i class="fa-solid fa-water text-2xl mb-1 text-slate-300"></i>
+                            <div>Cầu cảng hiện đang trống, sẵn sàng tiếp nhận tàu.</div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
+                        <button th:if="${berth.status.name() == 'AVAILABLE'}"
+                                @click="assignModal = true; selectedBerthId = [[${berth.id}]]"
+                                class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
+                            <i class="fa-solid fa-anchor"></i> Phân Bổ Tàu Vào Cầu Cảng Này (Assign)
+                        </button>
+                        <form th:if="${berth.currentVessel != null}" th:action="@{/berths/depart}" method="post" class="w-full">
+                            <input type="hidden" name="vesselId" th:value="${berth.currentVessel.id}">
+                            <button type="submit" class="w-full py-2.5 bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
+                                <i class="fa-solid fa-ship"></i> Xác Nhận Tàu Rời Bến (Depart)
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAL: ASSIGN VESSEL TO BERTH -->
+            <div x-show="assignModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" x-cloak>
+                <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200" @click.away="assignModal = false">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+                        <h3 class="font-bold text-base text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-anchor text-blue-600"></i> Phân Bổ Tàu Vào Cầu Cảng (Assign Vessel to Berth)
+                        </h3>
+                        <button @click="assignModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+                    </div>
+                    <form th:action="@{/berths/assign}" method="post" class="space-y-4">
+                        <input type="hidden" name="berthId" :value="selectedBerthId">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Chọn Tàu Cập Bến</label>
+                            <select name="vesselId" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500">
+                                <option value="">-- Chọn tàu đang lên lịch cập cảng --</option>
+                                <option th:each="v : ${scheduledVessels}" th:value="${v.id}"
+                                        th:text="${v.name} + ' (' + ${v.shippingLine.name} + ' - ' + ${v.capacityTeu} + ' TEU)'">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="p-3 bg-blue-50 rounded-xl text-xs text-blue-800">
+                            <b><<include>> Update Status:</b> Khi nhấn phân bổ, cầu bến sẽ tự động chuyển sang <code>OCCUPIED</code> và tàu sẽ đổi trạng thái thành <code>BERTHED</code>.
+                        </div>
+                        <div class="pt-2 flex justify-end gap-2">
+                            <button type="button" @click="assignModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl">Hủy</button>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl">Xác Nhận Phân Bổ</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ALL VESSELS SCHEDULE TABLE -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-calendar-days text-blue-600"></i> Lịch Trình Tàu Ra / Vào Cảng (Vessel Schedule)
+                        </h2>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[11px] border-b border-slate-200">
+                                <th class="py-3 px-4 font-semibold">Tên Tàu</th>
+                                <th class="py-3 px-4 font-semibold">Số IMO</th>
+                                <th class="py-3 px-4 font-semibold">Hãng Tàu</th>
+                                <th class="py-3 px-4 font-semibold">Sức chứa (TEU)</th>
+                                <th class="py-3 px-4 font-semibold">Chiều dài (m)</th>
+                                <th class="py-3 px-4 font-semibold">ETA (Dự kiến đến)</th>
+                                <th class="py-3 px-4 font-semibold">Cầu Bến</th>
+                                <th class="py-3 px-4 font-semibold">Trạng Thái</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr th:each="v : ${vessels}" class="hover:bg-slate-50 transition">
+                                <td class="py-3 px-4 font-bold text-slate-800" th:text="${v.name}">MSC OSCAR</td>
+                                <td class="py-3 px-4 font-mono text-slate-500" th:text="${v.imoNumber}">IMO9703291</td>
+                                <td class="py-3 px-4 text-slate-700 font-medium" th:text="${v.shippingLine.name}">MSC</td>
+                                <td class="py-3 px-4 font-mono text-slate-600" th:text="${#numbers.formatInteger(v.capacityTeu, 3, 'POINT')}">19.224</td>
+                                <td class="py-3 px-4 text-slate-600" th:text="${v.lengthMeters} + ' m'">395.4 m</td>
+                                <td class="py-3 px-4 text-slate-600 font-mono" th:text="${#temporals.format(v.eta, 'dd/MM/yyyy HH:mm')}">23/09 14:00</td>
+                                <td class="py-3 px-4">
+                                    <span th:if="${v.assignedBerth != null}" class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-bold font-mono text-[10px]" th:text="${v.assignedBerth.berthCode}">B-01</span>
+                                    <span th:if="${v.assignedBerth == null}" class="text-slate-400 italic">Chưa phân</span>
+                                </td>
+                                <td class="py-3 px-4">
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                                          th:classappend="${v.status.name() == 'BERTHED' ? 'bg-emerald-100 text-emerald-800' : (v.status.name() == 'SCHEDULED' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600')}"
+                                          th:text="${v.status.displayName}">Đang cập bến</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+</body>
+</html>

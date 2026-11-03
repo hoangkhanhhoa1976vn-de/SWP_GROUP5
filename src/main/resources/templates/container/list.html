@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main :: mainLayout(~{::#main-content})}">
+<head></head>
+<body>
+        <div id="main-content" class="space-y-6">
+
+            <!-- Page Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
+                        <i class="fa-solid fa-box-archive text-amber-600"></i> Tra Cứu & Lọc Container (Search & Filter)
+                    </h1>
+                    <p class="text-sm text-slate-500 mt-1">Lọc theo loại Khô/Lạnh (Dry/Reefer), Có hàng/Rỗng, Tình trạng và Hãng tàu</p>
+                </div>
+            </div>
+
+            <!-- Filter Panel -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                <form th:action="@{/containers}" method="get" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 text-xs">
+                    <!-- Search query -->
+                    <div class="lg:col-span-2">
+                        <label class="block font-semibold text-slate-700 uppercase tracking-wider mb-1">Mã Container</label>
+                        <input type="text" name="query" th:value="${paramQuery}" placeholder="Tìm theo số container..."
+                               class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-mono uppercase focus:ring-2 focus:ring-amber-500">
+                    </div>
+
+                    <!-- Type Dry/Reefer -->
+                    <div>
+                        <label class="block font-semibold text-slate-700 uppercase tracking-wider mb-1">Loại Cont</label>
+                        <select name="containerType" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500">
+                            <option value="">Tất cả loại</option>
+                            <option value="DRY" th:selected="${paramType != null and paramType.name() == 'DRY'}">Dry (Khô)</option>
+                            <option value="REEFER" th:selected="${paramType != null and paramType.name() == 'REEFER'}">Reefer (Lạnh)</option>
+                        </select>
+                    </div>
+
+                    <!-- Full/Empty -->
+                    <div>
+                        <label class="block font-semibold text-slate-700 uppercase tracking-wider mb-1">Trạng thái hàng</label>
+                        <select name="cargoStatus" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500">
+                            <option value="">Tất cả</option>
+                            <option value="FULL" th:selected="${paramCargo != null and paramCargo.name() == 'FULL'}">Full (Có hàng)</option>
+                            <option value="EMPTY" th:selected="${paramCargo != null and paramCargo.name() == 'EMPTY'}">Empty (Rỗng)</option>
+                        </select>
+                    </div>
+
+                    <!-- Condition -->
+                    <div>
+                        <label class="block font-semibold text-slate-700 uppercase tracking-wider mb-1">Tình trạng vỏ</label>
+                        <select name="condition" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500">
+                            <option value="">Tất cả</option>
+                            <option value="GOOD" th:selected="${paramCondition != null and paramCondition.name() == 'GOOD'}">Good (Tốt)</option>
+                            <option value="DAMAGED" th:selected="${paramCondition != null and paramCondition.name() == 'DAMAGED'}">Damaged (Hỏng)</option>
+                        </select>
+                    </div>
+
+                    <!-- Shipping line -->
+                    <div>
+                        <label class="block font-semibold text-slate-700 uppercase tracking-wider mb-1">Hãng tàu</label>
+                        <select name="shippingLineId" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500">
+                            <option value="">Tất cả hãng</option>
+                            <option th:each="line : ${shippingLines}" th:value="${line.id}" th:text="${line.code}"
+                                    th:selected="${paramShippingLineId != null and paramShippingLineId == line.id}"></option>
+                        </select>
+                    </div>
+
+                    <div class="lg:col-span-6 flex justify-end gap-2 pt-2 border-t border-slate-100">
+                        <a th:href="@{/containers}" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold">Đặt lại bộ lọc</a>
+                        <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold shadow flex items-center gap-1.5">
+                            <i class="fa-solid fa-filter"></i> Lọc Kết Quả
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Table of Containers -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[11px] border-b border-slate-200">
+                                <th class="py-3 px-4 font-semibold">Số Container</th>
+                                <th class="py-3 px-4 font-semibold">Loại ISO</th>
+                                <th class="py-3 px-4 font-semibold">Khô / Lạnh</th>
+                                <th class="py-3 px-4 font-semibold">Hàng / Rỗng</th>
+                                <th class="py-3 px-4 font-semibold">Tình trạng</th>
+                                <th class="py-3 px-4 font-semibold">Hãng Tàu</th>
+                                <th class="py-3 px-4 font-semibold">Vị trí Bãi</th>
+                                <th class="py-3 px-4 font-semibold">Trạng Thái</th>
+                                <th class="py-3 px-4 font-semibold text-right">Chi tiết</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr th:each="c : ${containers}" class="hover:bg-slate-50 transition">
+                                <td class="py-3 px-4 font-mono font-bold text-slate-900">
+                                    <a th:href="@{'/containers/' + ${c.id}}" class="text-sky-700 hover:underline" th:text="${c.containerNumber}">MSKU9182736</a>
+                                </td>
+                                <td class="py-3 px-4 font-mono text-slate-600" th:text="${c.isoType}">40HC</td>
+                                <td class="py-3 px-4">
+                                    <span th:if="${c.containerType.name() == 'DRY'}" class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-semibold text-[10px]">Khô (Dry)</span>
+                                    <span th:if="${c.containerType.name() == 'REEFER'}" class="px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-700 font-semibold text-[10px]"><i class="fa-solid fa-snowflake mr-0.5"></i> Lạnh (Reefer)</span>
+                                </td>
+                                <td class="py-3 px-4" th:text="${c.cargoStatus.displayName}">Có hàng</td>
+                                <td class="py-3 px-4">
+                                    <span th:if="${c.condition.name() == 'GOOD'}" class="text-emerald-600 font-semibold"><i class="fa-solid fa-circle-check"></i> Tốt</span>
+                                    <span th:if="${c.condition.name() == 'DAMAGED'}" class="text-rose-600 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> Hỏng hóc</span>
+                                </td>
+                                <td class="py-3 px-4 font-medium text-slate-700" th:text="${c.shippingLine.name}">Maersk</td>
+                                <td class="py-3 px-4">
+                                    <span th:if="${c.currentSlot != null}" class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-mono font-bold text-[10px]" th:text="${c.currentSlot.slotCode}">A-01</span>
+                                    <span th:if="${c.currentSlot == null}" class="text-slate-400 italic">Chưa xếp ô</span>
+                                </td>
+                                <td class="py-3 px-4">
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                                          th:classappend="${c.currentStatus.name() == 'IN_YARD' ? 'bg-emerald-100 text-emerald-800' : (c.currentStatus.name() == 'GATE_IN' ? 'bg-sky-100 text-sky-800' : 'bg-slate-100 text-slate-600')}"
+                                          th:text="${c.currentStatus.displayName}">Đã hạ bãi</span>
+                                </td>
+                                <td class="py-3 px-4 text-right">
+                                    <a th:href="@{'/containers/' + ${c.id}}" class="px-2.5 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg text-[11px] font-semibold transition inline-flex items-center gap-1">
+                                        <i class="fa-solid fa-clock-rotate-left"></i> Lịch sử
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+</body>
+</html>

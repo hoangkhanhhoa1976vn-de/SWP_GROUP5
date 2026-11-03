@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main :: mainLayout(~{::#main-content})}">
+<head></head>
+<body>
+        <div id="main-content" class="space-y-6">
+
+            <!-- Page Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
+                        <i class="fa-solid fa-door-open text-indigo-600"></i> Điều Hành Cổng Cảng (Gate Control)
+                    </h1>
+                    <p class="text-sm text-slate-500 mt-1">
+                        Kiểm tra niêm phong seal, tình trạng cont, đối soát booking và tự động ghi log di chuyển
+                    </p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a th:href="@{/gate/in}" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl transition flex items-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-right-to-bracket"></i> Xác Nhận Gate In
+                    </a>
+                    <a th:href="@{/gate/out}" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl transition flex items-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-right-from-bracket"></i> Xác Nhận Gate Out
+                    </a>
+                </div>
+            </div>
+
+            <!-- Gate Appointments Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-calendar-check text-indigo-500"></i> Danh Sách Lịch Hẹn Xe Tải Đến Cổng (Gate Appointments)
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Lịch hẹn giao/nhận do tài xế đăng ký trước</p>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[11px] border-b border-slate-200">
+                                <th class="py-3 px-4 font-semibold">Mã Booking</th>
+                                <th class="py-3 px-4 font-semibold">Loại nghiệp vụ</th>
+                                <th class="py-3 px-4 font-semibold">Biển số xe</th>
+                                <th class="py-3 px-4 font-semibold">Số Container</th>
+                                <th class="py-3 px-4 font-semibold">Tài xế / SĐT</th>
+                                <th class="py-3 px-4 font-semibold">Giờ hẹn</th>
+                                <th class="py-3 px-4 font-semibold">Trạng thái</th>
+                                <th class="py-3 px-4 font-semibold text-right">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr th:each="a : ${appointments}" class="hover:bg-slate-50 transition">
+                                <td class="py-3 px-4 font-mono font-bold text-indigo-700" th:text="${a.bookingNumber}">BK-001</td>
+                                <td class="py-3 px-4">
+                                    <span th:if="${a.appointmentType.name() == 'IMPORT_PICKUP'}" class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-semibold text-[10px]">Lấy hàng Nhập</span>
+                                    <span th:if="${a.appointmentType.name() == 'EXPORT_DROPOFF'}" class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold text-[10px]">Hạ hàng Xuất</span>
+                                </td>
+                                <td class="py-3 px-4 font-mono font-bold text-slate-800" th:text="${a.licensePlate}">51C-889.92</td>
+                                <td class="py-3 px-4 font-mono text-slate-700">
+                                    <span class="font-bold text-slate-800" th:text="${a.containerNumber}">MSKU9182736</span>
+                                    <span th:if="${a.container != null and a.container.currentSlot != null}"
+                                          class="block text-[10px] text-emerald-700 font-bold font-sans">
+                                        <i class="fa-solid fa-location-dot text-emerald-500"></i> Ô: <span th:text="${a.container.currentSlot.slotCode}">A-02</span>
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-slate-600">
+                                    <span th:text="${a.driver.fullName}">Lê Văn Tài Xế</span>
+                                    <span class="block text-[10px] text-slate-400" th:text="${a.driverPhone}">090...</span>
+                                </td>
+                                <td class="py-3 px-4 text-slate-600 font-mono" th:text="${#temporals.format(a.appointmentTime, 'dd/MM/yyyy HH:mm')}">23/09 14:00</td>
+                                <td class="py-3 px-4">
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                                          th:classappend="${a.status.name() == 'CONFIRMED' ? 'bg-amber-100 text-amber-700' : (a.status.name() == 'CHECKED_IN' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600')}"
+                                          th:text="${a.status.displayName}">Đã xác nhận</span>
+                                </td>
+                                <td class="py-3 px-4 text-right">
+                                    <a th:if="${a.status.name() == 'CONFIRMED' and a.appointmentType.name() == 'EXPORT_DROPOFF'}"
+                                       th:href="@{/gate/in(booking=${a.bookingNumber})}"
+                                       class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-semibold inline-flex items-center gap-1 shadow-sm">
+                                        Check In
+                                    </a>
+                                    <a th:if="${a.status.name() == 'CONFIRMED' and a.appointmentType.name() == 'IMPORT_PICKUP'}"
+                                       th:href="@{/gate/out(container=${a.containerNumber}, plate=${a.licensePlate})}"
+                                       class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[11px] font-semibold inline-flex items-center gap-1 shadow-sm">
+                                        Gate Out
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+</body>
+</html>

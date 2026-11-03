@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main :: mainLayout(~{::#main-content})}">
+<head></head>
+<body>
+        <div id="main-content" class="space-y-6" x-data="{ createModal: false }">
+
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
+                        <i class="fa-solid fa-ferry text-cyan-600"></i> Quản Lý Danh Mục Tàu (Manage Vessels)
+                    </h1>
+                    <p class="text-sm text-slate-500 mt-1">Thông số kỹ thuật, số IMO và lịch trình cập cảng</p>
+                </div>
+                <button @click="createModal = true" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-semibold rounded-xl transition flex items-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-plus"></i> Khai Báo Tàu Mới
+                </button>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[11px] border-b border-slate-200">
+                                <th class="py-3 px-4 font-semibold">Tên Tàu</th>
+                                <th class="py-3 px-4 font-semibold">Số IMO</th>
+                                <th class="py-3 px-4 font-semibold">Hãng Tàu</th>
+                                <th class="py-3 px-4 font-semibold">Sức chứa (TEU)</th>
+                                <th class="py-3 px-4 font-semibold">Chiều dài (m)</th>
+                                <th class="py-3 px-4 font-semibold">Cầu Bến</th>
+                                <th class="py-3 px-4 font-semibold">Trạng Thái</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr th:each="v : ${vessels}" class="hover:bg-slate-50 transition">
+                                <td class="py-3 px-4 font-bold text-slate-800" th:text="${v.name}">MSC OSCAR</td>
+                                <td class="py-3 px-4 font-mono text-slate-500" th:text="${v.imoNumber}">IMO9703291</td>
+                                <td class="py-3 px-4 text-slate-700 font-medium" th:text="${v.shippingLine.name}">MSC</td>
+                                <td class="py-3 px-4 font-mono text-slate-600" th:text="${v.capacityTeu} + ' TEU'">19.224 TEU</td>
+                                <td class="py-3 px-4 text-slate-600" th:text="${v.lengthMeters} + ' m'">395.4 m</td>
+                                <td class="py-3 px-4">
+                                    <span th:if="${v.assignedBerth != null}" class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-bold font-mono text-[10px]" th:text="${v.assignedBerth.berthCode}">B-01</span>
+                                    <span th:if="${v.assignedBerth == null}" class="text-slate-400 italic">Chưa phân bổ</span>
+                                </td>
+                                <td class="py-3 px-4">
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                                          th:classappend="${v.status.name() == 'BERTHED' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}"
+                                          th:text="${v.status.displayName}">Đang cập bến</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- CREATE MODAL -->
+            <div x-show="createModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" x-cloak>
+                <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200" @click.away="createModal = false">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+                        <h3 class="font-bold text-base text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-plus text-cyan-600"></i> Khai Báo Thông Tin Tàu Mới
+                        </h3>
+                        <button @click="createModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+                    </div>
+                    <form th:action="@{/vessels/create}" method="post" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Tên Tàu *</label>
+                                <input type="text" name="name" required placeholder="VD: EVER GIVEN" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs uppercase">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Số IMO *</label>
+                                <input type="text" name="imoNumber" required placeholder="VD: IMO9811000" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs uppercase font-mono">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Hãng Tàu Sở Hữu *</label>
+                            <select name="shippingLineId" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs">
+                                <option th:each="line : ${shippingLines}" th:value="${line.id}" th:text="${line.name} + ' (' + ${line.code} + ')'"></option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Sức Chứa (TEU) *</label>
+                                <input type="number" name="capacityTeu" required placeholder="20000" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Chiều Dài (mét) *</label>
+                                <input type="number" step="0.1" name="lengthMeters" required placeholder="399.9" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Dự Kiến Đến (ETA) *</label>
+                            <input type="datetime-local" name="eta" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs">
+                        </div>
+                        <div class="pt-2 flex justify-end gap-2">
+                            <button type="button" @click="createModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl">Hủy</button>
+                            <button type="submit" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-semibold rounded-xl">Lưu Tàu</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+</body>
+</html>

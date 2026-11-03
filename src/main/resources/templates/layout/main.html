@@ -1,0 +1,156 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:fragment="mainLayout(contentBlock)"
+      lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle != null ? pageTitle + ' - CTMS' : 'CTMS - Container Terminal Management System'}">CTMS - Container Terminal Management System</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        port: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col" x-data="{ sidebarOpen: false }">
+
+    <!-- Top Navigation -->
+    <header class="bg-port-900 text-white shadow-md sticky top-0 z-40">
+        <!-- Main Header -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a th:href="@{/dashboard}" class="flex items-center gap-2.5 text-white font-bold text-xl tracking-tight hover:opacity-90">
+                    <div class="w-10 h-10 rounded-lg bg-sky-500 flex items-center justify-center shadow-lg">
+                        <i class="fa-solid fa-anchor text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <span class="block text-lg leading-tight">CTMS PORT</span>
+                        <span class="block text-[10px] text-sky-300 font-normal uppercase tracking-wider">Hệ thống Khai thác Cảng</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Right user info & logout -->
+            <div class="flex items-center gap-4">
+                <div class="text-right hidden sm:block">
+                    <div class="text-sm font-semibold" sec:authentication="name">User</div>
+                    <div class="text-xs text-sky-300" sec:authentication="authorities">[Role]</div>
+                </div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3 py-1.5 rounded-md transition shadow flex items-center gap-1.5">
+                        <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex-1 flex max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 gap-6">
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 flex-shrink-0 hidden md:block">
+            <nav class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-1 sticky top-24">
+                <!-- Quản trị & Báo cáo (Chỉ Manager & Operator) -->
+                <div sec:authorize="hasAnyAuthority('ROLE_MANAGER', 'ROLE_OPERATOR')">
+                    <div class="px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-400">Quản trị & Báo cáo</div>
+                    <a th:href="@{/dashboard}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-port-50 hover:text-port-700 transition">
+                        <i class="fa-solid fa-chart-pie w-5 text-center text-sky-600"></i> Dashboard & KPI
+                    </a>
+                </div>
+
+                <!-- Vận hành Cảng (Chỉ Operator & Manager) -->
+                <div sec:authorize="hasAnyAuthority('ROLE_OPERATOR', 'ROLE_MANAGER')">
+                    <div class="px-3 pt-3 pb-2 text-xs font-bold uppercase tracking-wider text-slate-400">Vận hành Cảng (Terminal)</div>
+                    <a th:href="@{/yard}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-port-50 hover:text-port-700 transition">
+                        <i class="fa-solid fa-cubes-stacked w-5 text-center text-emerald-600"></i> Bản đồ Bãi (48 Slots)
+                    </a>
+                    <a th:href="@{/gate}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-port-50 hover:text-port-700 transition">
+                        <i class="fa-solid fa-door-open w-5 text-center text-indigo-600"></i> Cổng (Gate In / Gate Out)
+                    </a>
+                    <a th:href="@{/berths}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-port-50 hover:text-port-700 transition">
+                        <i class="fa-solid fa-ship w-5 text-center text-blue-600"></i> Cầu bến & Lịch tàu
+                    </a>
+                    <a th:href="@{/containers}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-port-50 hover:text-port-700 transition">
+                        <i class="fa-solid fa-box-archive w-5 text-center text-amber-600"></i> Tra cứu Container
+                    </a>
+                </div>
+
+                <!-- Danh mục & Cấu hình (Chỉ Manager) -->
+                <div sec:authorize="hasAuthority('ROLE_MANAGER')">
+                    <div class="px-3 pt-3 pb-2 text-xs font-bold uppercase tracking-wider text-slate-400">Danh mục & Cấu hình</div>
+                    <a th:href="@{/shipping-lines}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-port-50 hover:text-port-700 transition">
+                        <i class="fa-solid fa-building-flag w-5 text-center text-violet-600"></i> Quản lý Hãng tàu
+                    </a>
+                    <a th:href="@{/vessels}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-port-50 hover:text-port-700 transition">
+                        <i class="fa-solid fa-ferry w-5 text-center text-cyan-600"></i> Quản lý Danh mục Tàu
+                    </a>
+                    <a th:href="@{/drivers}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-port-50 hover:text-port-700 transition">
+                        <i class="fa-solid fa-id-card w-5 text-center text-purple-600"></i> Quản lý Tài xế Xe tải
+                    </a>
+                </div>
+
+                <!-- Cổng Dịch Vụ Khách Hàng -->
+                <div>
+                    <div class="px-3 pt-3 pb-2 text-xs font-bold uppercase tracking-wider text-slate-400">Cổng Dịch Vụ</div>
+                    <a sec:authorize="hasAnyAuthority('ROLE_SHIPPING_LINE', 'ROLE_MANAGER')" th:href="@{/portal/shipping-line}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-port-50 hover:text-port-700 transition">
+                        <i class="fa-solid fa-globe w-5 text-center text-teal-600"></i> Cổng Hãng tàu (Portal)
+                    </a>
+                    <a sec:authorize="hasAnyAuthority('ROLE_TRUCK_DRIVER', 'ROLE_OPERATOR', 'ROLE_MANAGER')" th:href="@{/portal/driver}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-port-50 hover:text-port-700 transition">
+                        <i class="fa-solid fa-calendar-check w-5 text-center text-orange-600"></i> Đặt lịch hẹn Xe tải
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 min-w-0">
+            <!-- Flash Message Alerts -->
+            <div th:if="${successMessage}" class="mb-5 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-between shadow-sm">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-circle-check text-emerald-500 text-lg"></i>
+                    <span th:text="${successMessage}" class="font-medium text-sm">Thành công!</span>
+                </div>
+            </div>
+            <div th:if="${errorMessage}" class="mb-5 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center justify-between shadow-sm">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-circle-exclamation text-rose-500 text-lg"></i>
+                    <span th:text="${errorMessage}" class="font-medium text-sm">Có lỗi xảy ra!</span>
+                </div>
+            </div>
+
+            <!-- Page Content Insertion -->
+            <div th:replace="${contentBlock}"></div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+            CTMS (Container Terminal Management System) &copy; 2026 - Đồ án thực tế SWP phát triển bằng Java Spring Boot 3 & Tailwind CSS
+        </div>
+    </footer>
+</body>
+</html>

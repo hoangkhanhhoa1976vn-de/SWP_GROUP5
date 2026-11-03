@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main :: mainLayout(~{::#main-content})}">
+<head></head>
+<body>
+        <div id="main-content" class="max-w-3xl mx-auto space-y-6">
+
+            <!-- Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-6 bg-gradient-to-r from-emerald-600 to-teal-700 text-white">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-2xl">
+                            <i class="fa-solid fa-right-to-bracket"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold">Thủ Tục Xác Nhận Xe Vào Cổng (Confirm Gate In)</h1>
+                            <p class="text-xs text-emerald-100 mt-0.5">Quy trình bắt buộc: Verify Container & Tự động Record Movement</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Highlight Include alert -->
+                <div class="bg-emerald-50/70 p-4 border-b border-emerald-100 flex items-center gap-3 text-xs text-emerald-900">
+                    <i class="fa-solid fa-circle-info text-emerald-600 text-base"></i>
+                    <div>
+                        <b>Quy trình Use Case bao gồm (<<include>>):</b> Hệ thống sẽ tự động xác minh tính hợp lệ của Seal, tình trạng vỏ cont, đối soát Booking và sinh nhật ký di chuyển thời gian thực.
+                    </div>
+                </div>
+
+                <!-- Thông tin vị trí bãi được điều phối trước -->
+                <div th:if="${app != null and app.container != null and app.container.currentSlot != null}"
+                     class="bg-emerald-100/80 p-4 border-b border-emerald-300 flex items-center justify-between gap-3 text-xs text-emerald-950 font-medium">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-map-location-dot text-emerald-700 text-lg"></i>
+                        <span>Container này đã được hệ thống chỉ định vị trí bãi trước:</span>
+                    </div>
+                    <span class="px-3 py-1 rounded-lg bg-emerald-700 text-white font-mono font-bold text-sm shadow-sm"
+                          th:text="'Ô ' + ${app.container.currentSlot.slotCode} + ' (' + ${app.container.currentSlot.block.displayName} + ')'">
+                        Ô A-02 (Khối A)
+                    </span>
+                </div>
+
+                <form th:action="@{/gate/in}" method="post" class="p-6 space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- License Plate -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Biển Số Xe Đầu Kéo *</label>
+                            <input type="text" name="licensePlate" required
+                                   th:value="${app != null ? app.licensePlate : ''}"
+                                   placeholder="VD: 51C-889.92"
+                                   class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono uppercase font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500">
+                        </div>
+
+                        <!-- Container Number -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Mã Số Container *</label>
+                            <input type="text" name="containerNumber" required
+                                   th:value="${app != null ? app.containerNumber : ''}"
+                                   placeholder="VD: MSKU8291024"
+                                   class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono uppercase font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500">
+                        </div>
+
+                        <!-- Seal Number (Verify Seal) -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Số Chì Niêm Phong (Seal Number) *</label>
+                            <input type="text" name="sealNumber" required
+                                   th:value="${app != null ? app.sealNumber : 'SL-99881'}"
+                                   placeholder="VD: SL-99881"
+                                   class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono uppercase focus:ring-2 focus:ring-emerald-500">
+                        </div>
+
+                        <!-- Booking Number (Verify Booking) -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Mã Booking / Lệnh Giao Nhận</label>
+                            <input type="text" name="bookingNumber"
+                                   th:value="${app != null ? app.bookingNumber : bookingParam}"
+                                   placeholder="VD: BK-EXP-2026-002"
+                                   class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono focus:ring-2 focus:ring-emerald-500">
+                        </div>
+
+                        <!-- Container Type -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Phân Loại Container</label>
+                            <select name="containerType" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500">
+                                <option value="DRY">Container Khô (Dry)</option>
+                                <option value="REEFER">Container Lạnh (Reefer)</option>
+                            </select>
+                        </div>
+
+                        <!-- Cargo Status -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Trạng Thái Hàng</label>
+                            <select name="cargoStatus" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500">
+                                <option value="FULL">Có hàng (Full)</option>
+                                <option value="EMPTY">Rỗng (Empty)</option>
+                            </select>
+                        </div>
+
+                        <!-- Physical Condition (Verify Condition) -->
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Tình Trạng Vỏ Cont (Physical Condition) *</label>
+                            <div class="flex gap-4">
+                                <label class="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-300 rounded-xl flex-1 cursor-pointer">
+                                    <input type="radio" name="condition" value="GOOD" checked class="text-emerald-600 focus:ring-emerald-500">
+                                    <span class="text-xs font-semibold text-emerald-900"><i class="fa-solid fa-circle-check text-emerald-600"></i> Nguyên vẹn (Good condition)</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-3 bg-rose-50 border border-rose-300 rounded-xl flex-1 cursor-pointer">
+                                    <input type="radio" name="condition" value="DAMAGED" class="text-rose-600 focus:ring-rose-500">
+                                    <span class="text-xs font-semibold text-rose-900"><i class="fa-solid fa-triangle-exclamation text-rose-600"></i> Hỏng hóc / Móp méo (Damaged)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <a th:href="@{/gate}" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">
+                            &larr; Quay lại
+                        </a>
+                        <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-600/30 transition flex items-center gap-2">
+                            <i class="fa-solid fa-check"></i> Xác Nhận Cho Xe Vào Cổng (Confirm Gate In)
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+</body>
+</html>

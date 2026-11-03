@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main :: mainLayout(~{::#main-content})}">
+<head></head>
+<body>
+        <div id="main-content" class="max-w-4xl mx-auto space-y-6">
+
+            <!-- Back link -->
+            <div>
+                <a th:href="@{/containers}" class="text-xs font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrow-left"></i> Quay lại danh sách container
+                </a>
+            </div>
+
+            <!-- Container Profile Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Mã Hồ Sơ Container</span>
+                        <h1 class="text-2xl font-mono font-extrabold text-slate-900 mt-0.5" th:text="${container.containerNumber}">MSKU9182736</h1>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800"
+                              th:text="${container.currentStatus.displayName}">Đã hạ bãi</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs mt-5">
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                        <span class="text-slate-400 block text-[11px]">Hãng Tàu Sở Hữu:</span>
+                        <span class="font-bold text-slate-800 text-sm" th:text="${container.shippingLine.name}">Maersk Line</span>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                        <span class="text-slate-400 block text-[11px]">Loại & Kích Cỡ:</span>
+                        <span class="font-bold text-slate-800 text-sm" th:text="${container.isoType} + ' - ' + ${container.containerType.displayName}">40HC - Khô</span>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                        <span class="text-slate-400 block text-[11px]">Số Niêm Chì (Seal):</span>
+                        <span class="font-mono font-bold text-slate-800 text-sm" th:text="${container.sealNumber} ?: 'Chưa niêm chì'">SL-99881</span>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                        <span class="text-slate-400 block text-[11px]">Vị Trí Hiện Tại:</span>
+                        <span class="font-mono font-bold text-emerald-700 text-sm"
+                              th:text="${container.currentSlot != null ? container.currentSlot.slotCode + ' (' + container.currentSlot.block.displayName + ')' : 'Chưa xếp ô'}">Slot A-01</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Movement History Timeline (Use Case: View Movement History) -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-sky-600"></i> Lịch Sử Di Chuyển (Movement History Timeline)
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Nhật ký truy vết thời gian thực mọi biến động vị trí</p>
+                    </div>
+                </div>
+
+                <div class="relative pl-6 border-l-2 border-slate-200 space-y-6">
+                    <div th:each="m : ${movements}" class="relative group">
+                        <!-- Bullet dot -->
+                        <div class="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-white border-4 border-sky-600 group-hover:scale-125 transition"></div>
+
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 hover:bg-slate-100/60 transition">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
+                                <span class="font-bold text-xs text-slate-900 flex items-center gap-2">
+                                    <span th:if="${m.eventType.name() == 'GATE_IN'}" class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 font-semibold text-[10px]">Gate In</span>
+                                    <span th:if="${m.eventType.name() == 'ASSIGN_SLOT'}" class="px-2 py-0.5 rounded bg-sky-100 text-sky-700 font-semibold text-[10px]">Hạ bãi</span>
+                                    <span th:if="${m.eventType.name() == 'MOVE_SLOT'}" class="px-2 py-0.5 rounded bg-amber-100 text-amber-700 font-semibold text-[10px]">Đảo chuyển bãi</span>
+                                    <span th:if="${m.eventType.name() == 'GATE_OUT'}" class="px-2 py-0.5 rounded bg-rose-100 text-rose-700 font-semibold text-[10px]">Gate Out</span>
+                                    <span th:text="${m.eventType.displayName}">Vào cổng</span>
+                                </span>
+                                <span class="font-mono text-xs text-slate-500" th:text="${#temporals.format(m.timestamp, 'dd/MM/yyyy HH:mm:ss')}">23/09/2026 14:00:00</span>
+                            </div>
+
+                            <div class="text-xs text-slate-700 grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                                <div><span class="text-slate-400">Từ vị trí:</span> <b th:text="${m.fromLocation}">Cổng</b></div>
+                                <div><span class="text-slate-400">Đến vị trí:</span> <b class="text-emerald-700" th:text="${m.toLocation}">Slot A-01</b></div>
+                            </div>
+
+                            <div class="text-[11px] text-slate-500 mt-2 flex items-center justify-between border-t border-slate-200/60 pt-2">
+                                <div><i class="fa-solid fa-user-check text-slate-400 mr-1"></i> <span th:text="${m.operatorName}">Điều hành</span></div>
+                                <div th:if="${m.truckPlate}" class="font-mono"><i class="fa-solid fa-truck text-slate-400 mr-1"></i> Xe: <span th:text="${m.truckPlate}">51C-...</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+</body>
+</html>

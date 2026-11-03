@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main :: mainLayout(~{::#main-content})}">
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+    <div id="main-content" class="space-y-6">
+
+            <!-- Page Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-sky-600"></i> Bảng Điều Khiển & Thống Kê Cảng
+                    </h1>
+                    <p class="text-sm text-slate-500 mt-1">Giám sát toàn diện chỉ số khai thác bãi, cầu bến và luồng container</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a th:href="@{/yard}" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl transition flex items-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-cubes-stacked"></i> Xem Sơ Đồ Bãi
+                    </a>
+                    <a th:href="@{/gate/in}" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold rounded-xl transition flex items-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-truck-ramp-box"></i> Gate In
+                    </a>
+                </div>
+            </div>
+
+            <!-- KPI Cards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <!-- Card 1: Total Containers -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Tổng Container</div>
+                        <div class="text-3xl font-extrabold text-slate-800 mt-1" th:text="${stats.totalContainers}">8</div>
+                        <div class="text-xs text-emerald-600 font-medium mt-1 flex items-center gap-1">
+                            <i class="fa-solid fa-circle-check"></i> Đang theo dõi hồ sơ
+                        </div>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                    </div>
+                </div>
+
+                <!-- Card 2: Yard Occupancy -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Công Suất Bãi</div>
+                        <div class="text-3xl font-extrabold text-slate-800 mt-1">
+                            <span th:text="${stats.occupancyRate}">12.5</span>%
+                        </div>
+                        <div class="text-xs text-slate-500 font-medium mt-1">
+                            Đã dùng <b class="text-slate-700" th:text="${stats.inYardCount}">6</b> / <span th:text="${stats.totalSlots}">48</span> Slots
+                        </div>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-square-poll-vertical"></i>
+                    </div>
+                </div>
+
+                <!-- Card 3: Berthed Vessels -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Tàu Đang Cập Bến</div>
+                        <div class="text-3xl font-extrabold text-slate-800 mt-1" th:text="${stats.berthedVessels}">1</div>
+                        <div class="text-xs text-blue-600 font-medium mt-1 flex items-center gap-1">
+                            <i class="fa-solid fa-anchor"></i> 2 Cầu cảng sẵn sàng
+                        </div>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-ship"></i>
+                    </div>
+                </div>
+
+                <!-- Card 4: 3 Blocks Info -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Mô Hình Bãi (Scope)</div>
+                        <div class="text-2xl font-extrabold text-slate-800 mt-1">3 Khối / 48 Ô</div>
+                        <div class="text-xs text-purple-600 font-medium mt-1">
+                            Block A, Block B, Block C
+                        </div>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Movement Live Feed Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-amber-500"></i> Nhật Ký Di Chuyển Container (Record Movement)
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Tự động ghi nhận mỗi khi Gate In, Gate Out, xếp ô hoặc đảo bãi</p>
+                    </div>
+                    <a th:href="@{/containers}" class="text-xs font-semibold text-sky-600 hover:text-sky-700">Xem tất cả container &rarr;</a>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[11px] border-b border-slate-200">
+                                <th class="py-3 px-4 font-semibold">Thời gian</th>
+                                <th class="py-3 px-4 font-semibold">Loại sự kiện</th>
+                                <th class="py-3 px-4 font-semibold">Số Container</th>
+                                <th class="py-3 px-4 font-semibold">Vị trí đi</th>
+                                <th class="py-3 px-4 font-semibold">Vị trí đến</th>
+                                <th class="py-3 px-4 font-semibold">Người thực hiện</th>
+                                <th class="py-3 px-4 font-semibold">Ghi chú</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr th:each="m : ${stats.recentMovements}" class="hover:bg-slate-50 transition">
+                                <td class="py-3 px-4 font-mono text-slate-500" th:text="${#temporals.format(m.timestamp, 'dd/MM/yyyy HH:mm')}">23/09 14:00</td>
+                                <td class="py-3 px-4">
+                                    <span th:if="${m.eventType.name() == 'GATE_IN'}" class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold text-[10px]">Gate In</span>
+                                    <span th:if="${m.eventType.name() == 'ASSIGN_SLOT'}" class="px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 font-semibold text-[10px]">Hạ bãi</span>
+                                    <span th:if="${m.eventType.name() == 'MOVE_SLOT'}" class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-semibold text-[10px]">Đảo bãi</span>
+                                    <span th:if="${m.eventType.name() == 'GATE_OUT'}" class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 font-semibold text-[10px]">Gate Out</span>
+                                </td>
+                                <td class="py-3 px-4 font-bold text-slate-800 font-mono">
+                                    <a th:href="@{'/containers/' + ${m.container.id}}" class="hover:text-sky-600 hover:underline" th:text="${m.container.containerNumber}">MSKU1234567</a>
+                                </td>
+                                <td class="py-3 px-4 text-slate-600" th:text="${m.fromLocation}">Cổng vào</td>
+                                <td class="py-3 px-4 text-slate-800 font-medium" th:text="${m.toLocation}">Slot A-01</td>
+                                <td class="py-3 px-4 text-slate-600" th:text="${m.operatorName}">Trần Điều Hành</td>
+                                <td class="py-3 px-4 text-slate-500 italic" th:text="${m.notes}">Hạ bãi</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+</body>
+</html>

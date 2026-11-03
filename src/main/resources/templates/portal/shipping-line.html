@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main :: mainLayout(~{::#main-content})}">
+<head></head>
+<body>
+        <div id="main-content" class="space-y-6">
+
+            <!-- Banner -->
+            <div class="bg-gradient-to-r from-sky-800 to-indigo-900 text-white p-6 rounded-2xl shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <span class="px-2.5 py-0.5 rounded-full bg-sky-500/30 text-sky-200 text-xs font-semibold uppercase tracking-wider">
+                            Cổng Dịch Vụ Khách Hàng Bên Ngoài (Actor: Shipping Line)
+                        </span>
+                        <h1 class="text-2xl font-bold mt-1">Cổng Quản Trị Hãng Tàu Đối Tác</h1>
+                        <p class="text-xs text-sky-200 mt-1">
+                            Xem thông tin vận chuyển riêng (View Own Shipping Info) & Tra cứu lịch tàu (View Vessel Schedule)
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs text-sky-300">Tài khoản đối tác:</div>
+                        <div class="text-lg font-bold text-white"
+                             th:text="${currentUser != null and currentUser.shippingLine != null ? currentUser.shippingLine.name + ' (' + currentUser.shippingLine.code + ')' : (currentUser != null ? currentUser.fullName : 'Hãng Tàu Đối Tác')}">
+                            MAERSK LINE (MAE)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vessels of this Shipping Line -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-ship text-sky-600"></i> Đội Tàu Thuộc Hãng (Your Vessels)
+                        </h2>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[11px] border-b border-slate-200">
+                                <th class="py-3 px-4 font-semibold">Tên Tàu</th>
+                                <th class="py-3 px-4 font-semibold">Số IMO</th>
+                                <th class="py-3 px-4 font-semibold">Sức chứa</th>
+                                <th class="py-3 px-4 font-semibold">ETA (Cập cảng)</th>
+                                <th class="py-3 px-4 font-semibold">Cầu Bến Phân Bổ</th>
+                                <th class="py-3 px-4 font-semibold">Trạng Thái</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr th:each="v : ${myVessels}" class="hover:bg-slate-50">
+                                <td class="py-3 px-4 font-bold text-slate-800" th:text="${v.name}">MAERSK MC-KINNEY MOLLER</td>
+                                <td class="py-3 px-4 font-mono text-slate-500" th:text="${v.imoNumber}">IMO9619907</td>
+                                <td class="py-3 px-4 font-mono text-slate-700" th:text="${v.capacityTeu} + ' TEU'">18.270 TEU</td>
+                                <td class="py-3 px-4 font-mono text-slate-600" th:text="${#temporals.format(v.eta, 'dd/MM/yyyy HH:mm')}">--</td>
+                                <td class="py-3 px-4">
+                                    <span th:if="${v.assignedBerth != null}" class="px-2 py-0.5 rounded bg-blue-100 text-blue-700 font-bold text-[10px]" th:text="${v.assignedBerth.berthCode}">B-01</span>
+                                    <span th:if="${v.assignedBerth == null}" class="text-slate-400 italic">Chưa xếp bến</span>
+                                </td>
+                                <td class="py-3 px-4">
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800" th:text="${v.status.displayName}">Đã lên lịch</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Containers belonging to this Shipping Line -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-boxes-stacked text-indigo-600"></i> Danh Sách Container Của Hãng (Your Containers)
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Phân quyền dữ liệu theo phạm vi sở hữu của hãng tàu</p>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[11px] border-b border-slate-200">
+                                <th class="py-3 px-4 font-semibold">Số Container</th>
+                                <th class="py-3 px-4 font-semibold">Loại</th>
+                                <th class="py-3 px-4 font-semibold">Hàng / Rỗng</th>
+                                <th class="py-3 px-4 font-semibold">Tình trạng</th>
+                                <th class="py-3 px-4 font-semibold">Số Niêm Chì (Seal)</th>
+                                <th class="py-3 px-4 font-semibold">Vị trí Bãi</th>
+                                <th class="py-3 px-4 font-semibold">Trạng Thái</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr th:each="c : ${myContainers}" class="hover:bg-slate-50">
+                                <td class="py-3 px-4 font-mono font-bold text-slate-900" th:text="${c.containerNumber}">MSKU9182736</td>
+                                <td class="py-3 px-4" th:text="${c.isoType} + ' - ' + ${c.containerType.displayName}">40HC - Khô</td>
+                                <td class="py-3 px-4" th:text="${c.cargoStatus.displayName}">Có hàng</td>
+                                <td class="py-3 px-4">
+                                    <span th:if="${c.condition.name() == 'GOOD'}" class="text-emerald-600 font-semibold"><i class="fa-solid fa-circle-check"></i> Tốt</span>
+                                    <span th:if="${c.condition.name() == 'DAMAGED'}" class="text-rose-600 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> Hỏng hóc</span>
+                                </td>
+                                <td class="py-3 px-4 font-mono text-slate-700" th:text="${c.sealNumber}">SL-99881</td>
+                                <td class="py-3 px-4">
+                                    <span th:if="${c.currentSlot != null}" class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono font-bold text-[10px]" th:text="${c.currentSlot.slotCode}">A-01</span>
+                                    <span th:if="${c.currentSlot == null}" class="text-slate-400 italic">--</span>
+                                </td>
+                                <td class="py-3 px-4">
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800" th:text="${c.currentStatus.displayName}">Đã hạ bãi</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+</body>
+</html>
