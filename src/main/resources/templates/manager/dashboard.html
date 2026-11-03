@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main :: mainLayout(~{::#main-content})}">
+<head>
+    <title>Bảng Điều Hành Khai Thác Cảng - TOS Executive</title>
+</head>
+<body>
+    <div id="main-content" class="space-y-6">
+
+        <!-- Top Manager Banner -->
+        <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white p-7 rounded-2xl shadow-md border border-slate-700/60 relative overflow-hidden">
+            <div class="absolute -right-12 -top-12 w-64 h-64 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+                <div>
+                    <div class="flex items-center gap-2 mb-2.5 flex-wrap">
+                        <span class="px-2.5 py-0.5 rounded-full bg-amber-400/15 text-amber-300 text-[11px] font-semibold tracking-wide border border-amber-400/30 flex items-center gap-1.5">
+                            <i class="fa-solid fa-briefcase text-[10px]"></i> Ban Quản Trị Cảng
+                        </span>
+                        <span class="px-2.5 py-0.5 rounded-full bg-sky-400/15 text-sky-300 text-[11px] font-medium border border-sky-400/30 flex items-center gap-1.5">
+                            <i class="fa-solid fa-satellite-dish text-[10px]"></i> Executive TOS Dashboard
+                        </span>
+                    </div>
+                    <h1 class="text-2xl font-black tracking-tight text-white flex items-center gap-2">
+                        <span>Trung Tâm Giám Sát & Điều Hành Khai Thác Cảng</span>
+                    </h1>
+                    <p class="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+                        Theo dõi chỉ số KPI trọng yếu thời gian thực: sản lượng luân chuyển, công suất chiếm dụng bãi (CY), năng lực cầu bến và lưu lượng giao nhận hàng hóa.
+                    </p>
+                </div>
+                <div class="flex items-center gap-2.5 flex-wrap shrink-0">
+                    <a th:href="@{/manager/reports}" class="px-4 py-2.5 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-sky-900/40 transition flex items-center gap-2">
+                        <i class="fa-solid fa-file-invoice-dollar"></i> Báo Cáo Sản Lượng
+                    </a>
+                    <a th:href="@{/manager/shipping-lines}" class="px-4 py-2.5 bg-slate-800/90 hover:bg-slate-700 border border-slate-600/60 text-slate-200 hover:text-white text-xs font-bold rounded-xl transition flex items-center gap-2">
+                        <i class="fa-solid fa-building-flag"></i> Hãng Tàu Đối Tác
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4 KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <!-- Card 1: Sản lượng cont -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:border-slate-300 hover:shadow-md transition flex items-center justify-between">
+                <div>
+                    <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Sản Lượng Container Quản Lý</div>
+                    <div class="text-3xl font-black text-slate-800 mt-1" th:text="${stats.totalContainers}">8</div>
+                    <div class="text-xs text-emerald-600 font-semibold mt-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-check text-[11px]"></i> Cont hoạt động trong hệ thống
+                    </div>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl border border-sky-100">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                </div>
+            </div>
+
+            <!-- Card 2: Công suất bãi -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:border-slate-300 hover:shadow-md transition flex items-center justify-between">
+                <div>
+                    <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Công Suất Chiếm Dụng Bãi (CY)</div>
+                    <div class="text-3xl font-black text-slate-800 mt-1">
+                        <span th:text="${stats.occupancyRate}">14.6</span>%
+                    </div>
+                    <div class="text-xs text-slate-500 font-medium mt-1">
+                        Đang lưu giữ <b class="text-slate-800 font-bold" th:text="${stats.inYardCount}">7</b> / <span th:text="${stats.totalSlots}">48</span> Slots
+                    </div>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl border border-emerald-100">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </div>
+            </div>
+
+            <!-- Card 3: Cầu bến -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:border-slate-300 hover:shadow-md transition flex items-center justify-between">
+                <div>
+                    <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Tàu Đang Cập Cầu Làm Hàng</div>
+                    <div class="text-3xl font-black text-slate-800 mt-1" th:text="${stats.berthedVessels}">1</div>
+                    <div class="text-xs text-sky-600 font-semibold mt-1 flex items-center gap-1">
+                        <i class="fa-solid fa-anchor text-[11px]"></i> Cầu cảng đang tiếp nhận tàu
+                    </div>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl border border-indigo-100">
+                    <i class="fa-solid fa-ship"></i>
+                </div>
+            </div>
+
+            <!-- Card 4: Lịch hẹn xe tải -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:border-slate-300 hover:shadow-md transition flex items-center justify-between">
+                <div>
+                    <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Lưu Lượng Phương Tiện Cổng</div>
+                    <div class="text-3xl font-black text-slate-800 mt-1" th:text="${appointments != null ? appointments.size() : 0}">5</div>
+                    <div class="text-xs text-purple-600 font-semibold mt-1 flex items-center gap-1">
+                        <i class="fa-solid fa-truck-ramp-box text-[11px]"></i> Phiếu hẹn giao nhận hôm nay
+                    </div>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl border border-purple-100">
+                    <i class="fa-solid fa-id-card-clip"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2 Column Layout: Hãng Tàu Đối Tác & Cầu Bến Cảng -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Hãng Tàu Đối Tác -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-building-flag text-amber-600"></i> Hãng Tàu Đối Tác (Shipping Lines)
+                        </h2>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Danh sách các hãng tàu quốc tế đang hợp tác khai thác</p>
+                    </div>
+                    <a th:href="@{/manager/shipping-lines}" class="text-xs text-sky-600 hover:text-sky-700 font-semibold flex items-center gap-1">
+                        Chi tiết <i class="fa-solid fa-angle-right text-[10px]"></i>
+                    </a>
+                </div>
+                <div class="space-y-3">
+                    <div th:each="line : ${shippingLines}" class="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100/70 border border-slate-100 transition">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-slate-900 text-sky-300 font-mono font-bold text-xs flex items-center justify-center shadow-sm" th:text="${line.code}">
+                                MAE
+                            </div>
+                            <div>
+                                <div class="text-xs font-bold text-slate-800" th:text="${line.name}">Maersk Line</div>
+                                <div class="text-[11px] text-slate-400 font-mono" th:text="${line.contactEmail}">operations@maersk.com</div>
+                            </div>
+                        </div>
+                        <span class="text-[11px] px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Đang khai thác
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cầu Bến & Tàu Biển -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-anchor text-sky-600"></i> Hiện Trạng Cầu Cảng & Cầu Bến (Berths)
+                        </h2>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Tình trạng tiếp nhận và giải phóng tàu tại các cầu tàu</p>
+                    </div>
+                    <a th:href="@{/manager/berths}" class="text-xs text-sky-600 hover:text-sky-700 font-semibold flex items-center gap-1">
+                        Chi tiết <i class="fa-solid fa-angle-right text-[10px]"></i>
+                    </a>
+                </div>
+                <div class="space-y-3">
+                    <div th:each="berth : ${berths}" class="p-3.5 rounded-xl border border-slate-200 flex items-center justify-between"
+                         th:classappend="${berth.status.name() == 'OCCUPIED' ? 'bg-sky-50/60 border-sky-200' : 'bg-slate-50 border-slate-100'}">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-xs text-slate-800" th:text="${berth.name}">Cầu cảng số 1</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-200 text-slate-700" th:text="${berth.berthCode}">B-01</span>
+                            </div>
+                            <div class="text-[11px] text-slate-500 mt-1 font-mono">
+                                Chiều dài: <span class="font-semibold text-slate-700" th:text="${berth.lengthMeters}">380</span>m | Mớn nước: <span class="font-semibold text-slate-700" th:text="${berth.maxDraftMeters}">14.5</span>m
+                            </div>
+                        </div>
+                        <span th:if="${berth.status.name() == 'OCCUPIED'}" class="px-2.5 py-1 rounded-full bg-sky-100 text-sky-800 border border-sky-200 text-[10px] font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-ship"></i> Có tàu làm hàng
+                        </span>
+                        <span th:if="${berth.status.name() == 'AVAILABLE'}" class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 text-[10px] font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-circle-check"></i> Cầu cảng trống
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Port Movements -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-sky-600"></i> Nhật Ký Luân Chuyển Container Toàn Cảng (Terminal Movements)
+                    </h2>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Truy vết thời gian thực mọi biến động luân chuyển container tại cổng, bãi và cầu tàu</p>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-slate-50/80 text-slate-500 uppercase tracking-wider text-[11px] border-b border-slate-200">
+                            <th class="py-3 px-4 font-semibold">Thời Điểm</th>
+                            <th class="py-3 px-4 font-semibold">Mã Container</th>
+                            <th class="py-3 px-4 font-semibold">Thao Tác Nghiệp Vụ</th>
+                            <th class="py-3 px-4 font-semibold">Vị Trí Trước</th>
+                            <th class="py-3 px-4 font-semibold">Vị Trí Mới</th>
+                            <th class="py-3 px-4 font-semibold">Nhân Sự Thực Hiện</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr th:each="m : ${stats.recentMovements}" class="hover:bg-slate-50/80 transition">
+                            <td class="py-3 px-4 font-mono text-slate-500" th:text="${#temporals.format(m.timestamp, 'dd/MM/yyyy HH:mm')}">19/10/2026</td>
+                            <td class="py-3 px-4 font-mono font-bold text-slate-900" th:text="${m.container != null ? m.container.containerNumber : 'N/A'}">MSKU9182736</td>
+                            <td class="py-3 px-4">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-sky-50 text-sky-800 border border-sky-200" th:text="${m.eventType != null ? m.eventType.displayName : '--'}">Vào cổng</span>
+                            </td>
+                            <td class="py-3 px-4 text-slate-600 font-mono text-[11px]" th:text="${m.fromLocation != null ? m.fromLocation : '--'}">Cổng In</td>
+                            <td class="py-3 px-4 text-emerald-700 font-mono font-bold text-[11px]" th:text="${m.toLocation != null ? m.toLocation : '--'}">A-01</td>
+                            <td class="py-3 px-4 text-slate-700 font-medium" th:text="${m.operatorName != null ? m.operatorName : 'Hệ thống'}">operator</td>
+                        </tr>
+                        <tr th:if="${stats.recentMovements == null || stats.recentMovements.isEmpty()}">
+                            <td colspan="6" class="py-8 text-center text-slate-400">
+                                <i class="fa-solid fa-inbox text-2xl mb-1 block text-slate-300"></i>
+                                Chưa có nhật ký vận chuyển nào được ghi nhận.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

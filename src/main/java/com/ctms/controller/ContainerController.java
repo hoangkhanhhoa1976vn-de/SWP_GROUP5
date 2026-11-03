@@ -6,37 +6,49 @@ import com.ctms.model.User;
 import com.ctms.service.ContainerService;
 import com.ctms.service.ShippingLineService;
 import com.ctms.service.UserService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/containers")
-@RequiredArgsConstructor
 public class ContainerController {
 
     private final ContainerService containerService;
     private final ShippingLineService shippingLineService;
     private final UserService userService;
 
+    public ContainerController(ContainerService containerService,
+                               ShippingLineService shippingLineService,
+                               UserService userService) {
+        this.containerService = containerService;
+        this.shippingLineService = shippingLineService;
+        this.userService = userService;
+    }
+
     /**
      * Use Case: Search & Filter Containers.
      * Tài khoản hãng tàu chỉ thấy container thuộc hãng của mình.
      */
     @GetMapping
-    public String listContainers(@RequestParam(value = "query", required = false) String query,
-                                 @RequestParam(value = "containerType", required = false) Container.ContainerType containerType,
-                                 @RequestParam(value = "cargoStatus", required = false) Container.CargoStatus cargoStatus,
-                                 @RequestParam(value = "condition", required = false) Container.Condition condition,
-                                 @RequestParam(value = "currentStatus", required = false) Container.TrackingStatus currentStatus,
-                                 @RequestParam(value = "shippingLineId", required = false) Long shippingLineId,
-                                 @AuthenticationPrincipal UserDetails userDetails,
-                                 Model model) {
+    public String searchContainers(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Container.TrackingStatus status,
+            @RequestParam(required = false) Long shippingLineId,
+            @RequestParam(required = false) Container.ContainerType type,
+            @RequestParam(required = false) Container.CargoStatus cargoStatus,
+            @AuthenticationPrincipal UserDetails userDetails,
+            Model model) {
+
         User currentUser = userDetails != null ? userService.findByUsername(userDetails.getUsername()) : null;
         model.addAttribute("currentUser", currentUser);
 
@@ -46,29 +58,35 @@ public class ContainerController {
             shippingLineId = currentUser.getShippingLine() != null ? currentUser.getShippingLine().getId() : -1L;
         }
 
-        model.addAttribute("containers", containerService.search(query, containerType, cargoStatus, condition, currentStatus, shippingLineId));
+        List<Container> containers = containerService.searchContainers(keyword, status, shippingLineId, type, cargoStatus);
+
+        model.addAttribute("containers", containers);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("selectedStatus", status);
+        model.addAttribute("selectedShippingLine", shippingLineId);
+        model.addAttribute("selectedType", type);
+        model.addAttribute("selectedCargoStatus", cargoStatus);
         model.addAttribute("shippingLines", restricted
                 ? shippingLineService.getAllShippingLines().stream()
                         .filter(l -> l.getId().equals(currentUser.getShippingLine().getId())).toList()
                 : shippingLineService.getAllShippingLines());
-
-        model.addAttribute("paramQuery", query);
-        model.addAttribute("paramType", containerType);
-        model.addAttribute("paramCargo", cargoStatus);
-        model.addAttribute("paramCondition", condition);
-        model.addAttribute("paramStatus", currentStatus);
-        model.addAttribute("paramShippingLineId", shippingLineId);
+        model.addAttribute("trackingStatuses", Container.TrackingStatus.values());
+        model.addAttribute("containerTypes", Container.ContainerType.values());
+        model.addAttribute("cargoStatuses", Container.CargoStatus.values());
 
         return "container/list";
     }
 
     /**
-     * Use Case: View Movement History & Container Details
+     * Use Case: View Container Tracking Details.
+     * Hãng tàu không được xem chi tiết container của hãng khác.
      */
     @GetMapping("/{id}")
-    public String containerDetail(@PathVariable("id") Long id,
-                                  @AuthenticationPrincipal UserDetails userDetails,
-                                  Model model) {
+    public String getContainerDetail(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails,
+            Model model) {
+
         User currentUser = userDetails != null ? userService.findByUsername(userDetails.getUsername()) : null;
         model.addAttribute("currentUser", currentUser);
 
@@ -84,7 +102,8 @@ public class ContainerController {
         }
 
         model.addAttribute("container", container);
-        model.addAttribute("movements", containerService.getMovementHistory(id));
+        model.addAttribute("history", containerService.getMovementHistory(id));
+
         return "container/detail";
     }
 

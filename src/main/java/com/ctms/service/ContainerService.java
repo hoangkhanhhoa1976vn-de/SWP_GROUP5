@@ -30,6 +30,14 @@ public class ContainerService {
         return containerRepository.searchContainers(query, type, cargoStatus, condition, currentStatus, shippingLineId);
     }
 
+    public List<Container> searchContainers(String query,
+                                            Container.TrackingStatus currentStatus,
+                                            Long shippingLineId,
+                                            Container.ContainerType type,
+                                            Container.CargoStatus cargoStatus) {
+        return search(query, type, cargoStatus, null, currentStatus, shippingLineId);
+    }
+
     public List<Container> findAll() {
         return containerRepository.findAll();
     }

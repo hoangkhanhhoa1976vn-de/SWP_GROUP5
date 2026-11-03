@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main :: mainLayout(~{::#main-content})}">
+<head>
+    <title>Báo Cáo Sản Lượng & Khai Thác Cảng</title>
+</head>
+<body>
+    <div id="main-content" class="space-y-6">
+
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white p-7 rounded-2xl shadow-md border border-slate-700/60 relative overflow-hidden">
+            <div class="absolute -right-12 -top-12 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+                <div>
+                    <div class="flex items-center gap-2 mb-2 flex-wrap">
+                        <span class="px-2.5 py-0.5 rounded-full bg-amber-400/15 text-amber-300 text-[11px] font-semibold uppercase tracking-wider border border-amber-400/30">
+                            Phân Tích Khai Thác & Tài Chính
+                        </span>
+                    </div>
+                    <h1 class="text-2xl font-black tracking-tight text-white mt-1">Báo Cáo Sản Lượng & Doanh Thu Cảng</h1>
+                    <p class="text-xs text-slate-300 mt-1 max-w-xl">Tổng hợp số liệu sản lượng nâng hạ bãi, phí dịch vụ cổng (Gate Fee) và chỉ số quay vòng slot bãi.</p>
+                </div>
+                <div class="text-right bg-slate-800/80 p-4 rounded-xl border border-slate-700/80 shrink-0">
+                    <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Doanh Thu Thu Phí Cảng</div>
+                    <div class="text-2xl font-black text-amber-400 mt-0.5">185.500.000 <span class="text-xs font-semibold text-slate-300">VNĐ</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3 Analytic Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80">
+                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Cơ Cấu Sản Lượng Xuất / Nhập</div>
+                <div class="mt-4 space-y-3">
+                    <div>
+                        <div class="flex justify-between text-xs font-semibold mb-1">
+                            <span class="text-slate-600">Container Nhập Khẩu:</span>
+                            <span class="font-bold text-slate-800">65%</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-2">
+                            <div class="bg-sky-500 h-2 rounded-full" style="width: 65%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs font-semibold mb-1">
+                            <span class="text-slate-600">Container Xuất Khẩu:</span>
+                            <span class="font-bold text-slate-800">35%</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-2">
+                            <div class="bg-amber-500 h-2 rounded-full" style="width: 35%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80">
+                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Thời Gian Lưu Bãi Trung Bình (Dwell Time)</div>
+                <div class="text-3xl font-black text-slate-800 mt-2">2.4 <span class="text-base font-normal text-slate-500">ngày</span></div>
+                <p class="text-xs text-emerald-600 font-semibold mt-1 flex items-center gap-1.5">
+                    <i class="fa-solid fa-bolt text-[11px]"></i> Tối ưu hơn 18% so với định mức cảng
+                </p>
+                <div class="text-[11px] text-slate-400 mt-2">Đạt chỉ tiêu giải phóng slot nhanh theo chuẩn quốc tế</div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80">
+                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Doanh Thu Thu Phí Cổng (Gate Revenue)</div>
+                <div class="text-3xl font-black text-emerald-600 mt-2">12.800.000 <span class="text-xs text-slate-500 font-normal">VNĐ</span></div>
+                <p class="text-xs text-slate-500 font-medium mt-1">
+                    Ghi nhận từ các giao dịch thanh toán trực tuyến VietQR
+                </p>
+            </div>
+        </div>
+
+        <!-- Appointment Log Table -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+            <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-receipt text-amber-600"></i> Danh Sách Thu Phí Lịch Hẹn Xe Tải (Gate Revenue Log)
+            </h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[11px] border-b border-slate-200">
+                            <th class="py-3 px-4 font-semibold">Mã Đặt Lịch</th>
+                            <th class="py-3 px-4 font-semibold">Loại Nghiệp Vụ</th>
+                            <th class="py-3 px-4 font-semibold">Biển Số Xe</th>
+                            <th class="py-3 px-4 font-semibold">Số Container</th>
+                            <th class="py-3 px-4 font-semibold">Mức Phí Nâng Hạ</th>
+                            <th class="py-3 px-4 font-semibold">Trạng Thái</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr th:each="app : ${allAppointments}" class="hover:bg-slate-50">
+                            <td class="py-3 px-4 font-mono font-bold text-slate-800" th:text="${app.bookingNumber}">BK-IMP-2026-001</td>
+                            <td class="py-3 px-4" th:text="${app.appointmentType.displayName}">Lấy cont nhập khẩu</td>
+                            <td class="py-3 px-4 font-mono font-bold text-slate-700" th:text="${app.licensePlate}">51C-889.92</td>
+                            <td class="py-3 px-4 font-mono text-slate-600" th:text="${app.containerNumber}">MSKU9182736</td>
+                            <td class="py-3 px-4 font-bold text-emerald-600">
+                                <span th:text="${app.appointmentType.name() == 'IMPORT_PICKUP' ? '450.000 VNĐ' : '400.000 VNĐ'}">450.000 VNĐ</span>
+                            </td>
+                            <td class="py-3 px-4">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800" th:text="${app.status}">CONFIRMED</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
