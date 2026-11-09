@@ -101,8 +101,10 @@ public class ContainerController {
             }
         }
 
+        List<com.ctms.model.MovementHistory> movements = containerService.getMovementHistory(id);
         model.addAttribute("container", container);
-        model.addAttribute("history", containerService.getMovementHistory(id));
+        model.addAttribute("movements", movements);
+        model.addAttribute("history", movements);
 
         return "container/detail";
     }
